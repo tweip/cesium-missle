@@ -7,10 +7,10 @@ const myGlobe = Globe()
 .arcDashLength(0.3) // Length of each dash segment
 .arcDashGap(0.1) // Gap between dash segments
 .arcDashInitialGap(() => Math.random() * 0.3) // Initial gap for dash segments
-.arcDashAnimateTime(2000) // Time for a complete dash animation cycle
+.arcDashAnimateTime(1000) // Time for a complete dash animation cycle
 .arcColor(d => d.color)
 .arcAltitudeAutoScale(0.5) // Higher arcs
-.arcStroke(1) // Increase the stroke width
+.arcStroke(2) // Increase the stroke width
 .arcsTransitionDuration(0)
 .arcLabel(d => `${d.source.label} → ${d.destination.label}`)
 .arcStartLat(d => d.source.lat)
