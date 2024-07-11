@@ -1,5 +1,3 @@
-const COUNTRY = 'Singapore';
-const OPACITY = 0.22;
 const SINGAPORE_COORDINATES = { lat: 1.3521, lng: 103.8198 };
 
 const myGlobe = Globe()
@@ -10,7 +8,7 @@ const myGlobe = Globe()
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
 .arcDashAnimateTime(4000)
-.arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, `rgba(255, 0, 0, ${OPACITY})`])
+.arcColor(d => [`rgba(0, 255, 0, 0.5)`, `rgba(255, 0, 0, 0.5)`])
 .arcsTransitionDuration(0)
 .pointColor(() => 'orange')
 .pointAltitude(0)
@@ -38,23 +36,9 @@ const arcsData = attacks.map(attack => ({
     startLng: attack.from.lng,
     endLat: attack.to.lat,
     endLng: attack.to.lng,
-    color: attack.from === SINGAPORE_COORDINATES ? ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)'] : ['rgba(0, 255, 0, 0.5)', 'rgba(255, 0, 0, 0.5)']
+    color: attack.from.lat === SINGAPORE_COORDINATES.lat && attack.from.lng === SINGAPORE_COORDINATES.lng ? 
+           ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)'] : 
+           ['rgba(0, 255, 0, 0.5)', 'rgba(255, 0, 0, 0.5)']
 }));
 
 myGlobe.pointsData(pointsData).arcsData(arcsData);
-
-// Optional: Animation for missile trajectories
-function animateMissile(attack) {
-    const { from, to } = attack;
-    const missileData = [{
-        startLat: from.lat,
-        startLng: from.lng,
-        endLat: to.lat,
-        endLng: to.lng,
-        color: ['yellow']
-    }];
-
-    myGlobe.arcsData(missileData);
-}
-
-attacks.forEach(attack => animateMissile(attack));
