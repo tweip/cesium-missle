@@ -3,30 +3,26 @@ const SINGAPORE_COORDINATES = { lat: 1.3521, lng: 103.8198 };
 const myGlobe = Globe()
 (document.getElementById('globeViz'))
 .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-.pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: SINGAPORE_COORDINATES.lng, altitude: 2 }) // aim at Singapore
-.arcDashLength(0.3) // Length of each dash segment
-.arcDashGap(0.1) // Gap between dash segments
-.arcDashInitialGap(() => Math.random() * 0.3) // Initial gap for dash segments
-.arcDashAnimateTime(1000) // Time for a complete dash animation cycle
-.arcColor(d => d.color)
-.arcAltitudeAutoScale(0.5) // Higher arcs
-.arcStroke(2) // Increase the stroke width
+.pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: 103.8198, altitude: 2 }) // aim at Singapore
+.arcDashLength(0.25)
+.arcDashGap(1)
+.arcDashInitialGap(() => Math.random())
+.arcDashAnimateTime(2000)
+.arcStroke(0.5) // Increase the stroke width
 .arcsTransitionDuration(0)
-.arcLabel(d => `${d.source.label} → ${d.destination.label}`)
-.arcStartLat(d => d.source.lat)
-.arcStartLng(d => d.source.lng)
-.arcEndLat(d => d.destination.lat)
-.arcEndLng(d => d.destination.lng)
+.arcColor(arc => {
+    const isOutgoing = arc.startLat === SINGAPORE_COORDINATES.lat && arc.startLng === SINGAPORE_COORDINATES.lng;
+    return isOutgoing ? 'rgba(0, 255, 0, 1)' : 'rgba(255, 0, 0, 1)'; // Green for outgoing, red for incoming
+})
 .pointColor(() => 'orange')
 .pointAltitude(0)
-.pointRadius(0.05) // Larger points
+.pointRadius(0.02)
 .pointsMerge(true)
-.labelLat(d => d.lat)
-.labelLng(d => d.lng)
+.labelColor(() => 'white')
 .labelText(d => d.label)
-.labelSize(1)
-.labelDotRadius(0.2)
-.labelColor(() => 'white');
+.labelAltitude(0.01)
+.labelSize(1.5)
+.labelDotRadius(0.2);
 
 // Enable auto-rotation
 const controls = myGlobe.controls();
@@ -35,24 +31,84 @@ controls.autoRotateSpeed = 0.5;
 
 // Sample data representing attacks to and from Singapore
 const attacks = [
-    { source: { lat: 34.0522, lng: -118.2437, label: 'Los Angeles' }, destination: { ...SINGAPORE_COORDINATES, label: 'Singapore' } }, // Attack from LA to Singapore
-    { source: { lat: 40.7128, lng: -74.0060, label: 'New York' }, destination: { ...SINGAPORE_COORDINATES, label: 'Singapore' } },  // Attack from NY to Singapore
-    { source: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, destination: { lat: 55.7558, lng: 37.6176, label: 'Moscow' } },   // Attack from Singapore to Moscow
-    { source: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, destination: { lat: 35.6895, lng: 139.6917, label: 'Tokyo' } }   // Attack from Singapore to Tokyo
+    // Incoming attacks to Singapore
+    { from: { lat: 34.0522, lng: -118.2437, label: 'Los Angeles', country: 'us' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' }, // Attack from LA to Singapore
+    { from: { lat: 40.7128, lng: -74.0060, label: 'New York', country: 'us' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },    // Attack from NY to Singapore
+    { from: { lat: 51.5074, lng: -0.1278, label: 'London', country: 'gb' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },       // Attack from London to Singapore
+    { from: { lat: 48.8566, lng: 2.3522, label: 'Paris', country: 'fr' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },     // Attack from Paris to Singapore
+    { from: { lat: 35.6895, lng: 139.6917, label: 'Tokyo', country: 'jp' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },   // Attack from Tokyo to Singapore
+
+    // Outgoing attacks from Singapore
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 55.7558, lng: 37.6176, label: 'Moscow', country: 'ru' }, direction: 'outgoing' },      // Attack from Singapore to Moscow
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 35.6895, lng: 139.6917, label: 'Tokyo', country: 'jp' }, direction: 'outgoing' },      // Attack from Singapore to Tokyo
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 39.9042, lng: 116.4074, label: 'Beijing', country: 'cn' }, direction: 'outgoing' },    // Attack from Singapore to Beijing
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: -33.8688, lng: 151.2093, label: 'Sydney', country: 'au' }, direction: 'outgoing' },// Attack from Singapore to Sydney
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 19.0760, lng: 72.8777, label: 'Mumbai', country: 'in' }, direction: 'outgoing' },      // Attack from Singapore to Mumbai
+
+    // More incoming and outgoing attacks for variety
+    { from: { lat: 55.7558, lng: 37.6176, label: 'Moscow', country: 'ru' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },      // Attack from Moscow to Singapore
+    { from: { lat: 28.7041, lng: 77.1025, label: 'Delhi', country: 'in' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },       // Attack from Delhi to Singapore
+    { from: { lat: 19.0760, lng: 72.8777, label: 'Mumbai', country: 'in' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },      // Attack from Mumbai to Singapore
+    { from: { lat: -33.8688, lng: 151.2093, label: 'Sydney', country: 'au' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },// Attack from Sydney to Singapore
+    { from: { lat: 39.9042, lng: 116.4074, label: 'Beijing', country: 'cn' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },    // Attack from Beijing to Singapore
+    { from: { lat: 51.5074, lng: -0.1278, label: 'London', country: 'gb' }, to: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, direction: 'incoming' },         // Attack from London to Singapore
+
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 40.7128, lng: -74.0060, label: 'New York', country: 'us' }, direction: 'outgoing' },    // Attack from Singapore to New York
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 34.0522, lng: -118.2437, label: 'Los Angeles', country: 'us' }, direction: 'outgoing' },// Attack from Singapore to Los Angeles
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 51.5074, lng: -0.1278, label: 'London', country: 'gb' }, direction: 'outgoing' },       // Attack from Singapore to London
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 48.8566, lng: 2.3522, label: 'Paris', country: 'fr' }, direction: 'outgoing' },     // Attack from Singapore to Paris
+    { from: { ...SINGAPORE_COORDINATES, label: 'Singapore' }, to: { lat: 35.6895, lng: 139.6917, label: 'Tokyo', country: 'jp' }, direction: 'outgoing' }     // Attack from Singapore to Tokyo
 ];
 
 // Load data and update globe visualization
-const pointsData = attacks.flatMap(attack => [
-    { ...attack.source },
-    { ...attack.destination }
-]);
+const pointsData = attacks.flatMap(attack => [attack.from, attack.to]);
 
 const arcsData = attacks.map(attack => ({
-    source: attack.source,
-    destination: attack.destination,
-    color: attack.source.lat === SINGAPORE_COORDINATES.lat && attack.source.lng === SINGAPORE_COORDINATES.lng ? 
-           'rgba(255, 0, 0, 1)' : 'rgba(0, 255, 0, 1)', // Different colors for incoming and outgoing
-    stroke: 2 // Ensure all arcs have the same stroke width
+    startLat: attack.from.lat,
+    startLng: attack.from.lng,
+    endLat: attack.to.lat,
+    endLng: attack.to.lng
 }));
 
-myGlobe.pointsData(pointsData).arcsData(arcsData);
+const labelsData = pointsData.map(point => ({
+    lat: point.lat,
+    lng: point.lng,
+    label: point.label
+}));
+
+myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
+
+// Calculate the percentage of attacks from each country
+const incomingAttacks = attacks.filter(attack => attack.direction === 'incoming');
+const countryCounts = incomingAttacks.reduce((counts, attack) => {
+    counts[attack.from.country] = (counts[attack.from.country] || 0) + 1;
+    return counts;
+}, {});
+
+const totalIncoming = incomingAttacks.length;
+const countryPercentages = Object.entries(countryCounts).map(([country, count]) => ({
+    country,
+    percentage: ((count / totalIncoming) * 100).toFixed(2) + '%'
+}));
+
+// Update the table with the calculated percentages
+const tbody = document.getElementById('attackTable').querySelector('tbody');
+countryPercentages.forEach(({ country, percentage }) => {
+    const row = document.createElement('tr');
+    const flagCell = document.createElement('td');
+    const countryCell = document.createElement('td');
+    const percentageCell = document.createElement('td');
+    
+    const flagImg = document.createElement('img');
+    flagImg.src = `https://flagcdn.com/w40/${country}.png`;
+    flagImg.classList.add('flag');
+    flagCell.appendChild(flagImg);
+    
+    countryCell.textContent = country;
+    percentageCell.textContent = percentage;
+    
+    row.appendChild(flagCell);
+    row.appendChild(countryCell);
+    row.appendChild(percentageCell);
+    tbody.appendChild(row);
+});

@@ -2,14 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PEW PEW PEW</title>
+    <title>3D Missile Globe</title>
     <link rel="stylesheet" href="style.css">
     <script src="//unpkg.com/d3-dsv"></script>
     <script src="//unpkg.com/index-array-by"></script>
     <script src="//unpkg.com/globe.gl"></script>
 </head>
 <body>
-<div id="globeViz"></div>
+<div id="container">
+    <div id="globeViz"></div>
+    <div id="infoPanel">
+        <h2>Attack Origins</h2>
+        <table id="attackTable">
+            <tbody>
+                <!-- Dynamic content -->
+            </tbody>
+        </table>
+    </div>
+</div>
 <script src="app.js"></script>
 </body>
 </html>
