@@ -8,7 +8,8 @@ const myGlobe = Globe()
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
 .arcDashAnimateTime(4000)
-.arcColor(d => [`rgba(0, 255, 0, 0.5)`, `rgba(255, 0, 0, 0.5)`])
+.arcColor(d => [`rgba(0, 255, 0, 1)`, `rgba(255, 0, 0, 1)`]) // Fully opaque colors
+.arcStroke(0.5) // Increase the stroke width
 .arcsTransitionDuration(0)
 .pointColor(() => 'orange')
 .pointAltitude(0)
@@ -37,8 +38,8 @@ const arcsData = attacks.map(attack => ({
     endLat: attack.to.lat,
     endLng: attack.to.lng,
     color: attack.from.lat === SINGAPORE_COORDINATES.lat && attack.from.lng === SINGAPORE_COORDINATES.lng ? 
-           ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)'] : 
-           ['rgba(0, 255, 0, 0.5)', 'rgba(255, 0, 0, 0.5)']
+           ['rgba(255, 0, 0, 1)', 'rgba(0, 255, 0, 1)'] : 
+           ['rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)']
 }));
 
 myGlobe.pointsData(pointsData).arcsData(arcsData);
