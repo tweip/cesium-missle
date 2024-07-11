@@ -17,6 +17,11 @@ const myGlobe = Globe()
 .pointRadius(0.02)
 .pointsMerge(true);
 
+// Enable auto-rotation
+const controls = myGlobe.controls();
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+
 // Sample data representing attacks to and from Singapore
 const attacks = [
 { from: { lat: 34.0522, lng: -118.2437 }, to: SINGAPORE_COORDINATES }, // Attack from LA to Singapore
