@@ -1,23 +1,20 @@
-import { Viewer, Transforms, Cartesian3, Color, 
-Math as CesiumMath, CallbackProperty } from 
-'cesium';
+import Globe from 'globe.gl';
 
-const viewer = new Viewer('cesiumContainer', {
-    imageryProvider: false,
-    baseLayerPicker: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    timeline: false,
-    navigationHelpButton: false,
-    animation: false
-});
+const globe = 
+Globe()(document.getElementById('globeViz'))
+    
+.globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+    
+.bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+    
+.backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+    .showAtmosphere(true)
+    .atmosphereColor('lightblue')
+    .atmosphereAltitude(0.25);
 
-viewer.scene.camera.rotate(Cartesian3.UNIT_Z, 
-CesiumMath.toRadians(0.01));
-
-viewer.imageryLayers.addImageryProvider(new 
-Cesium.IonImageryProvider({ assetId: 2 }));
+// Auto-rotate the globe
+globe.controls().autoRotate = true;
+globe.controls().autoRotateSpeed = 0.5;
 
 const attacks = [
     { from: [34.0522, -118.2437], to: [39.9042, 
@@ -27,54 +24,31 @@ const attacks = [
 ];
 
 attacks.forEach(attack => {
-    const from = 
-Cartesian3.fromDegrees(...attack.from);
-    const to = 
-Cartesian3.fromDegrees(...attack.to);
-
-    viewer.entities.add({
-        polyline: {
-            positions: new CallbackProperty(() => 
-[from, to], false),
-            width: 2,
-            material: Color.RED
-        }
-    });
-
-    viewer.entities.add({
-        position: from,
-        point: { pixelSize: 10, color: Color.RED }
-    });
-
-    viewer.entities.add({
-        position: to,
-        point: { pixelSize: 10, color: Color.BLUE 
-}
-    });
+    globe.arcsData([{
+        startLat: attack.from[0],
+        startLng: attack.from[1],
+        endLat: attack.to[0],
+        endLng: attack.to[1],
+        color: ['red', 'blue']
+    }]);
 });
 
-function createMissileAnimation(from, to) {
-    const startTime = viewer.clock.startTime;
-    const stopTime = viewer.clock.stopTime;
+function animateMissile(attack) {
+    const [startLat, startLng] = attack.from;
+    const [endLat, endLng] = attack.to;
 
-    viewer.entities.add({
-        position: new CallbackProperty((time) => {
-            const t = 
-CesiumMath.clamp(CesiumMath.toRadians(time.secondsOfDay), 
-0, 1);
-            return Cartesian3.lerp(from, to, t, 
-new Cartesian3());
-        }, false),
-        point: { pixelSize: 5, color: Color.YELLOW 
-}
-    });
+    const missileData = [{
+        startLat,
+        startLng,
+        endLat,
+        endLng,
+        color: ['yellow']
+    }];
+
+    globe.arcsData(missileData);
 }
 
 attacks.forEach(attack => {
-    const from = 
-Cartesian3.fromDegrees(...attack.from);
-    const to = 
-Cartesian3.fromDegrees(...attack.to);
-    createMissileAnimation(from, to);
+    animateMissile(attack);
 });
 

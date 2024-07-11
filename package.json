@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "cesium": "^1.119.0"
+    "cesium": "^1.119.0",
+    "globe.gl": "^2.32.5"
   }
 }
