@@ -10,7 +10,7 @@ const myGlobe = Globe()
 .arcDashAnimateTime(2000) // Faster animation
 .arcColor(d => d.color)
 .arcAltitudeAutoScale(0.5) // Higher arcs
-.arcStroke(2) // Increase the stroke width
+.arcStroke(2) // Further increase the stroke width
 .arcsTransitionDuration(0)
 .pointColor(() => 'orange')
 .pointAltitude(0)
@@ -19,8 +19,8 @@ const myGlobe = Globe()
 .labelLat(d => d.lat)
 .labelLng(d => d.lng)
 .labelText(d => d.label)
-.labelSize(0.5)
-.labelDotRadius(0.1)
+.labelSize(1)
+.labelDotRadius(0.2)
 .labelColor(() => 'white');
 
 // Enable auto-rotation
@@ -38,8 +38,8 @@ const attacks = [
 
 // Load data and update globe visualization
 const pointsData = attacks.flatMap(attack => [
-    { ...attack.from, label: attack.from.label },
-    { ...attack.to, label: attack.to.label }
+    { ...attack.from },
+    { ...attack.to }
 ]);
 
 const arcsData = attacks.map(attack => ({
@@ -52,4 +52,4 @@ const arcsData = attacks.map(attack => ({
     stroke: 2 // Ensure all arcs have the same stroke width
 }));
 
-myGlobe.pointsData(pointsData).arcsData(arcsData);
+myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(pointsData);
