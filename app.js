@@ -4,16 +4,17 @@ const myGlobe = Globe()
 (document.getElementById('globeViz'))
 .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
 .pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: SINGAPORE_COORDINATES.lng, altitude: 2 }) // aim at Singapore
-.arcDashLength(0.25)
-.arcDashGap(1)
+.arcDashLength(0.4) // Longer dash segments
+.arcDashGap(0.1) // Shorter gaps between dashes
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(4000)
-.arcColor(d => [`rgba(0, 255, 0, 1)`, `rgba(255, 0, 0, 1)`]) // Fully opaque colors
-.arcStroke(50) // Increase the stroke width
+.arcDashAnimateTime(2000) // Faster animation
+.arcColor(d => `rgba(255, 255, 0, 1)`) // Bright yellow, fully opaque
+.arcAltitudeAutoScale(0.5) // Higher arcs
+.arcStroke(1) // Further increase the stroke width
 .arcsTransitionDuration(0)
 .pointColor(() => 'orange')
 .pointAltitude(0)
-.pointRadius(0.02)
+.pointRadius(0.05) // Larger points
 .pointsMerge(true);
 
 // Enable auto-rotation
@@ -38,8 +39,8 @@ const arcsData = attacks.map(attack => ({
     endLat: attack.to.lat,
     endLng: attack.to.lng,
     color: attack.from.lat === SINGAPORE_COORDINATES.lat && attack.from.lng === SINGAPORE_COORDINATES.lng ? 
-           ['rgba(255, 0, 0, 1)', 'rgba(0, 255, 0, 1)'] : 
-           ['rgba(0, 255, 0, 1)', 'rgba(255, 0, 0, 1)']
+           'rgba(255, 0, 0, 1)' : 'rgba(0, 255, 0, 1)', // Different colors for incoming and outgoing
+    stroke: 1 // Ensure all arcs have the same stroke width
 }));
 
 myGlobe.pointsData(pointsData).arcsData(arcsData);
