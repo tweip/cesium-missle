@@ -11,6 +11,8 @@
   "description": "",
   "dependencies": {
     "cesium": "^1.119.0",
-    "globe.gl": "^2.32.5"
+    "d3-dsv": "^3.0.1",
+    "globe.gl": "^2.32.5",
+    "index-array-by": "^1.4.1"
   }
 }
