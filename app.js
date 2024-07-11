@@ -4,13 +4,13 @@ const myGlobe = Globe()
 (document.getElementById('globeViz'))
 .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
 .pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: SINGAPORE_COORDINATES.lng, altitude: 2 }) // aim at Singapore
-.arcDashLength(1) // Continuous arcs
-.arcDashGap(0) // No gaps
-.arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(2000) // Faster animation
+.arcDashLength(0.3) // Length of each dash segment
+.arcDashGap(0.1) // Gap between dash segments
+.arcDashInitialGap(() => Math.random() * 0.3) // Initial gap for dash segments
+.arcDashAnimateTime(1000) // Time for a complete dash animation cycle
 .arcColor(d => d.color)
 .arcAltitudeAutoScale(0.5) // Higher arcs
-.arcStroke(2) // Further increase the stroke width
+.arcStroke(2) // Increase the stroke width
 .arcsTransitionDuration(0)
 .arcLabel(d => `${d.source.label} → ${d.destination.label}`)
 .arcStartLat(d => d.source.lat)
@@ -20,7 +20,13 @@ const myGlobe = Globe()
 .pointColor(() => 'orange')
 .pointAltitude(0)
 .pointRadius(0.05) // Larger points
-.pointsMerge(true);
+.pointsMerge(true)
+.labelLat(d => d.lat)
+.labelLng(d => d.lng)
+.labelText(d => d.label)
+.labelSize(1)
+.labelDotRadius(0.2)
+.labelColor(() => 'white');
 
 // Enable auto-rotation
 const controls = myGlobe.controls();
@@ -37,8 +43,8 @@ const attacks = [
 
 // Load data and update globe visualization
 const pointsData = attacks.flatMap(attack => [
-    { ...attack.source, label: attack.source.label },
-    { ...attack.destination, label: attack.destination.label }
+    { ...attack.source },
+    { ...attack.destination }
 ]);
 
 const arcsData = attacks.map(attack => ({
