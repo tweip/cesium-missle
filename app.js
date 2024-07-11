@@ -1,54 +1,73 @@
-import Globe from 'globe.gl';
+const COUNTRY = 'Singapore';
+const OPACITY = 0.22;
+const SINGAPORE_COORDINATES = { lat: 1.3521, lng: 
+103.8198 };
 
-const globe = 
-Globe()(document.getElementById('globeViz'))
-    
-.globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-    
-.bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-    
-.backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-    .showAtmosphere(true)
-    .atmosphereColor('lightblue')
-    .atmosphereAltitude(0.25);
+const myGlobe = Globe()
+  (document.getElementById('globeViz'))
+  
+.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+  .pointOfView({ lat: SINGAPORE_COORDINATES.lat, 
+lng: SINGAPORE_COORDINATES.lng, altitude: 2 }) // 
+aim at Singapore
+  .arcDashLength(0.25)
+  .arcDashGap(1)
+  .arcDashInitialGap(() => Math.random())
+  .arcDashAnimateTime(4000)
+  .arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, 
+`rgba(255, 0, 0, ${OPACITY})`])
+  .arcsTransitionDuration(0)
+  .pointColor(() => 'orange')
+  .pointAltitude(0)
+  .pointRadius(0.02)
+  .pointsMerge(true);
 
-// Auto-rotate the globe
-globe.controls().autoRotate = true;
-globe.controls().autoRotateSpeed = 0.5;
-
+// Sample data representing attacks to and from 
+Singapore
 const attacks = [
-    { from: [34.0522, -118.2437], to: [39.9042, 
-116.4074] },
-    { from: [40.7128, -74.0060], to: [55.7558, 
-37.6176] }
+  { from: { lat: 34.0522, lng: -118.2437 }, to: 
+SINGAPORE_COORDINATES }, // Attack from LA to 
+Singapore
+  { from: { lat: 40.7128, lng: -74.0060 }, to: 
+SINGAPORE_COORDINATES },  // Attack from NY to 
+Singapore
+  { from: SINGAPORE_COORDINATES, to: { lat: 
+55.7558, lng: 37.6176 } },  // Attack from 
+Singapore to Moscow
+  { from: SINGAPORE_COORDINATES, to: { lat: 
+35.6895, lng: 139.6917 } }  // Attack from 
+Singapore to Tokyo
 ];
 
-attacks.forEach(attack => {
-    globe.arcsData([{
-        startLat: attack.from[0],
-        startLng: attack.from[1],
-        endLat: attack.to[0],
-        endLng: attack.to[1],
-        color: ['red', 'blue']
-    }]);
-});
+// Load data and update globe visualization
+const pointsData = attacks.flatMap(attack => 
+[attack.from, attack.to]);
 
+const arcsData = attacks.map(attack => ({
+  startLat: attack.from.lat,
+  startLng: attack.from.lng,
+  endLat: attack.to.lat,
+  endLng: attack.to.lng,
+  color: attack.from === SINGAPORE_COORDINATES ? 
+['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)'] : 
+['rgba(0, 255, 0, 0.5)', 'rgba(255, 0, 0, 0.5)']
+}));
+
+myGlobe.pointsData(pointsData).arcsData(arcsData);
+
+// Optional: Animation for missile trajectories
 function animateMissile(attack) {
-    const [startLat, startLng] = attack.from;
-    const [endLat, endLng] = attack.to;
+  const { from, to } = attack;
+  const missileData = [{
+    startLat: from.lat,
+    startLng: from.lng,
+    endLat: to.lat,
+    endLng: to.lng,
+    color: ['yellow']
+  }];
 
-    const missileData = [{
-        startLat,
-        startLng,
-        endLat,
-        endLng,
-        color: ['yellow']
-    }];
-
-    globe.arcsData(missileData);
+  myGlobe.arcsData(missileData);
 }
 
-attacks.forEach(attack => {
-    animateMissile(attack);
-});
+attacks.forEach(attack => animateMissile(attack));
 
