@@ -9,7 +9,7 @@ const myGlobe = Globe()
 .arcDashInitialGap(() => Math.random())
 .arcDashAnimateTime(4000)
 .arcColor(d => [`rgba(0, 255, 0, 1)`, `rgba(255, 0, 0, 1)`]) // Fully opaque colors
-.arcStroke(3) // Increase the stroke width
+.arcStroke(10) // Increase the stroke width
 .arcsTransitionDuration(0)
 .pointColor(() => 'orange')
 .pointAltitude(0)
