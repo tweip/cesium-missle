@@ -21,27 +21,27 @@ body {
     height: 100%;
     overflow-y: auto;
     padding: 10px;
-    background-color: transparent; /* Fully transparent background */
+    background-color: transparent;
     color: white;
     position: relative;
-    z-index: 2; /* Ensure this is on top */
+    z-index: 2;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: transparent; /* Fully transparent background */
+    background-color: transparent;
 }
 
 th, td {
     padding: 8px;
     text-align: left;
-    background-color: transparent; /* Fully transparent background */
-    border: none; /* Remove borders */
+    background-color: transparent;
+    border: none;
 }
 
 img.flag {
     width: 30px;
     height: auto;
-    margin-right: 10px; /* Space between flag and country name */
+    margin-right: 10px;
 }
