@@ -10,8 +10,8 @@ const myGlobe = Globe()
 .arcDashAnimateTime(1000) // Time for a complete dash animation cycle
 .arcColor(d => d.color)
 .arcAltitudeAutoScale(0.5) // Higher arcs
-.arcStroke(2) // Increase the stroke width
-.arcsTransitionDuration(0)
+.arcStroke(1) // Increase the stroke width
+.arcsTransitionDuration(1)
 .arcLabel(d => `${d.source.label} → ${d.destination.label}`)
 .arcStartLat(d => d.source.lat)
 .arcStartLng(d => d.source.lng)
