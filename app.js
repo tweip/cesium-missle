@@ -7,12 +7,12 @@ const myGlobe = Globe()
 .arcDashLength(0.25)
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(2000)
-.arcStroke(0.5) // Increase the stroke width
+.arcDashAnimateTime(5000) // Slow down animation for performance
+.arcStroke(0.2) // Reduce stroke width for performance
 .arcsTransitionDuration(0)
 .arcColor(arc => {
     const isOutgoing = arc.startLat === SINGAPORE_COORDINATES.lat && arc.startLng === SINGAPORE_COORDINATES.lng;
-    return isOutgoing ? 'rgba(0, 255, 0, 1)' : 'rgba(255, 0, 0, 1)'; // Green for outgoing, red for incoming
+    return isOutgoing ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)'; // Adjust opacity for performance
 })
 .pointColor(() => 'orange')
 .pointAltitude(0)
@@ -24,10 +24,30 @@ const myGlobe = Globe()
 .labelSize(1.5)
 .labelDotRadius(0.2);
 
-// Enable auto-rotation
+// Enable auto-rotation with throttling
 const controls = myGlobe.controls();
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
+controls.autoRotateSpeed = 0.3;
+
+// Throttle function to limit the frequency of updates
+function throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function(...args) {
+        if (!lastRan) {
+            func.apply(this, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function() {
+                if ((Date.now() - lastRan) >= limit) {
+                    func.apply(this, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    };
+}
 
 // Load data from CSV and update globe visualization
 d3.csv('attacks.csv').then(data => {
@@ -47,32 +67,52 @@ d3.csv('attacks.csv').then(data => {
         direction: row.direction
     }));
 
-    const pointsData = attacks.flatMap(attack => [attack.from, attack.to]);
+    const pointsSet = new Set();
+    const arcsData = [];
+    const labelsData = [];
 
-    const arcsData = attacks.map(attack => ({
-        startLat: attack.from.lat,
-        startLng: attack.from.lng,
-        endLat: attack.to.lat,
-        endLng: attack.to.lng
-    }));
+    attacks.forEach(attack => {
+        const fromKey = `${attack.from.lat},${attack.from.lng}`;
+        const toKey = `${attack.to.lat},${attack.to.lng}`;
+        if (!pointsSet.has(fromKey)) {
+            pointsSet.add(fromKey);
+            labelsData.push({ lat: attack.from.lat, lng: attack.from.lng, label: attack.from.label });
+        }
+        if (!pointsSet.has(toKey)) {
+            pointsSet.add(toKey);
+            labelsData.push({ lat: attack.to.lat, lng: attack.to.lng, label: attack.to.label });
+        }
+        arcsData.push({
+            startLat: attack.from.lat,
+            startLng: attack.from.lng,
+            endLat: attack.to.lat,
+            endLng: attack.to.lng
+        });
+    });
 
-    const labelsData = pointsData.map(point => ({
-        lat: point.lat,
-        lng: point.lng,
-        label: point.label
-    }));
+    const pointsData = Array.from(pointsSet).map(key => {
+        const [lat, lng] = key.split(',').map(Number);
+        return { lat, lng };
+    });
 
-    myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
+    // Throttled data update for performance
+    const updateDataThrottled = throttle(() => {
+        myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
+    }, 1000);
+
+    updateDataThrottled();
 
     // Calculate the percentage of attacks from each country
     const incomingAttacks = attacks.filter(attack => attack.direction === 'incoming');
-    const countryCounts = incomingAttacks.reduce((counts, attack) => {
-        counts[attack.from.country.toUpperCase()] = (counts[attack.from.country.toUpperCase()] || 0) + 1;
-        return counts;
-    }, {});
+    const countryCounts = new Map();
+
+    incomingAttacks.forEach(attack => {
+        const country = attack.from.country.toUpperCase();
+        countryCounts.set(country, (countryCounts.get(country) || 0) + 1);
+    });
 
     const totalIncoming = incomingAttacks.length;
-    const countryPercentages = Object.entries(countryCounts).map(([country, count]) => ({
+    const countryPercentages = Array.from(countryCounts.entries()).map(([country, count]) => ({
         country,
         percentage: ((count / totalIncoming) * 100).toFixed(2) + '%'
     }));
