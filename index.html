@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PEW PEW PEW</title>
+    <title>3D Missile Globe</title>
     <link rel="stylesheet" href="style.css">
     <script src="//unpkg.com/d3-dsv"></script>
     <script src="//unpkg.com/index-array-by"></script>
@@ -10,14 +10,25 @@
 </head>
 <body>
 <div id="container">
+    <div id="header">
+        Cyber Threat Map
+        <div id="clockContainer">
+            <div id="clock"></div>
+            <div id="totalAttacks">Total Attacks: 0</div>
+        </div>
+    </div>
     <div id="globeViz"></div>
     <div id="infoPanel">
-        <h2>Attack Origins</h2>
-        <table id="attackTable">
-            <tbody>
-                <!-- Dynamic content -->
-            </tbody>
-        </table>
+        <div id="bottomRight">
+            <table id="attackTable">
+                <tbody>
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+        <div id="bottomLeft">
+            <span>&copy; ezolution</span>
+        </div>
     </div>
 </div>
 <script src="app.js"></script>

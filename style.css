@@ -1,47 +1,103 @@
 body {
     margin: 0;
     display: flex;
+    background-color: #000;
+    color: white;
 }
 
 #container {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100vh;
+    position: relative;
 }
 
 #globeViz {
-    width: 80%;
-    height: 100%;
+    width: 100%;
+    height: calc(100% - 60px); /* Adjust height to make space for the header */
     position: relative;
     z-index: 1;
 }
 
 #infoPanel {
-    width: 20%;
+    position: absolute;
+    width: 100%;
     height: 100%;
-    overflow-y: auto;
+    pointer-events: none; /* Make sure clicks pass through to the globe */
+}
+
+#header {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 3em; /* Increase font size */
+    color: #0f0; /* Neon green color */
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0, 0 0 15px #0f0, 0 0 20px #0f0, 0 0 25px #0f0, 0 0 30px #0f0, 0 0 35px #0f0;
+    z-index: 2; /* Ensure this is on top */
+    pointer-events: none; /* Prevent interaction */
+}
+
+#topRight {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
     padding: 10px;
-    background-color: transparent;
-    color: white;
-    position: relative;
-    z-index: 2;
+    border-radius: 5px;
+    text-align: right;
+    z-index: 2; /* Ensure this is on top */
+    pointer-events: all; /* Allow interactions */
+    font-size: 1.5em; /* Increase font size */
+}
+
+#clock, #totalAttacks {
+    margin: 5px 0;
+    display: block; /* Ensure new lines */
+    white-space: pre; /* Preserve white space */
+}
+
+#bottomRight {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 2; /* Ensure this is on top */
+    pointer-events: all; /* Allow interactions */
+    font-size: 1.5em; /* Increase font size */
+}
+
+#bottomLeft {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 2; /* Ensure this is on top */
+    pointer-events: all; /* Allow interactions */
+    font-size: 1.5em; /* Increase font size */
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: transparent;
+    background-color: transparent; /* Fully transparent background */
 }
 
 th, td {
     padding: 8px;
     text-align: left;
-    background-color: transparent;
-    border: none;
+    background-color: transparent; /* Fully transparent background */
+    border: none; /* Remove borders */
+    color: white;
 }
 
 img.flag {
     width: 30px;
     height: auto;
-    margin-right: 10px;
+    margin-right: 10px; /* Space between flag and country name */
 }
