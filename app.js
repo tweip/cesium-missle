@@ -31,7 +31,7 @@ controls.autoRotateSpeed = 0.5;
 
 // Load data from CSV and update globe visualization
 d3.csv('attacks.csv').then(data => {
-    console.log('CSV data loaded:', data); // Debugging line to ensure data is loaded
+    console.log("CSV Data Loaded:", data);
 
     const attacks = data.map(row => ({
         from: {
@@ -49,17 +49,15 @@ d3.csv('attacks.csv').then(data => {
         direction: row.direction
     }));
 
-    console.log('Parsed attacks data:', attacks); // Debugging line to check parsed data
+    console.log("Parsed Attacks Data:", attacks);
 
     const pointsData = attacks.flatMap(attack => [attack.from, attack.to]);
-
     const arcsData = attacks.map(attack => ({
         startLat: attack.from.lat,
         startLng: attack.from.lng,
         endLat: attack.to.lat,
         endLng: attack.to.lng
     }));
-
     const labelsData = pointsData.map(point => ({
         lat: point.lat,
         lng: point.lng,
@@ -80,6 +78,8 @@ d3.csv('attacks.csv').then(data => {
         country,
         percentage: ((count / totalIncoming) * 100).toFixed(2) + '%'
     }));
+
+    console.log("Country Percentages:", countryPercentages);
 
     // Update the table with the calculated percentages
     const tbody = document.getElementById('attackTable').querySelector('tbody');
@@ -105,8 +105,6 @@ d3.csv('attacks.csv').then(data => {
 
     // Update the total number of attacks
     document.getElementById('totalAttacks').textContent = `Total Attacks: ${attacks.length}`;
-}).catch(error => {
-    console.error('Error loading CSV data:', error); // Error handling
 });
 
 // Function to update the clock
