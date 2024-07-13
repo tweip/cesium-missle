@@ -49,53 +49,29 @@ function throttle(func, limit) {
     };
 }
 
-const CHUNK_SIZE = 500; // Number of rows to load at a time
-let currentIndex = 0;
-let totalData = [];
-let pointsSet = new Set();
-let arcsData = [];
-let labelsData = [];
+// Function to initialize the worker
+function initializeWorker(data) {
+    const worker = new Worker('worker.js');
+    worker.postMessage(data);
 
-// Function to load the next chunk of data
-function loadNextChunk() {
-    if (currentIndex >= totalData.length) return;
+    worker.onmessage = function(event) {
+        const { pointsData, arcsData, labelsData, currentIndex } = event.data;
 
-    const chunk = totalData.slice(currentIndex, currentIndex + CHUNK_SIZE);
-    currentIndex += CHUNK_SIZE;
+        myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
-    chunk.forEach(attack => {
-        const fromKey = `${attack.from.lat},${attack.from.lng}`;
-        const toKey = `${attack.to.lat},${attack.to.lng}`;
-        if (!pointsSet.has(fromKey)) {
-            pointsSet.add(fromKey);
-            labelsData.push({ lat: attack.from.lat, lng: attack.from.lng, label: attack.from.label });
+        // Update the table with the new data
+        updateTable(currentIndex, data);
+
+        // If there are more chunks to process, continue
+        if (currentIndex < data.length) {
+            worker.postMessage(data.slice(currentIndex));
         }
-        if (!pointsSet.has(toKey)) {
-            pointsSet.add(toKey);
-            labelsData.push({ lat: attack.to.lat, lng: attack.to.lng, label: attack.to.label });
-        }
-        arcsData.push({
-            startLat: attack.from.lat,
-            startLng: attack.from.lng,
-            endLat: attack.to.lat,
-            endLng: attack.to.lng
-        });
-    });
-
-    const pointsData = Array.from(pointsSet).map(key => {
-        const [lat, lng] = key.split(',').map(Number);
-        return { lat, lng };
-    });
-
-    myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
-
-    // Update the table with the new data
-    updateTable();
+    };
 }
 
 // Load initial data from CSV
 d3.csv('attacks.csv').then(data => {
-    totalData = data.map(row => ({
+    const attacks = data.map(row => ({
         from: {
             lat: +row.from_lat,
             lng: +row.from_lng,
@@ -111,14 +87,11 @@ d3.csv('attacks.csv').then(data => {
         direction: row.direction
     }));
 
-    loadNextChunk();
+    initializeWorker(attacks);
 });
 
-// Load more data when the user interacts with the globe
-myGlobe.controls().addEventListener('change', throttle(loadNextChunk, 1000));
-
 // Calculate the percentage of attacks from each country
-function updateTable() {
+function updateTable(currentIndex, totalData) {
     const incomingAttacks = totalData.filter(attack => attack.direction === 'incoming' && currentIndex >= totalData.indexOf(attack));
     const countryCounts = new Map();
 
