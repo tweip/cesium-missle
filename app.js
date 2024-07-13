@@ -127,4 +127,3 @@ function updateClock() {
 // Update the clock every second
 setInterval(updateClock, 1000);
 updateClock(); // Initial call to set the clock immediately
-```
