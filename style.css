@@ -15,7 +15,7 @@ body {
 
 #globeViz {
     width: 100%;
-    height: calc(100% - 60px); /* Adjust height to make space for the header */
+    height: 100%;
     position: relative;
     z-index: 1;
 }
