@@ -58,26 +58,31 @@ function initializeWorker(data) {
     };
 }
 
-// Load initial data from CSV
-d3.csv('attacks.csv').then(data => {
-    const attacks = data.map(row => ({
-        from: {
-            lat: +row.from_lat,
-            lng: +row.from_lng,
-            label: row.from_label,
-            country: row.from_country
-        },
-        to: {
-            lat: +row.to_lat,
-            lng: +row.to_lng,
-            label: row.to_label,
-            country: row.to_country
-        },
-        direction: row.direction
-    }));
+// Load initial data from gzipped JSON
+fetch('attacks.json.gz')
+    .then(response => response.arrayBuffer())
+    .then(buffer => {
+        const decompressed = pako.inflate(buffer, { to: 'string' });
+        const data = JSON.parse(decompressed);
 
-    initializeWorker(attacks);
-});
+        const attacks = data.map(row => ({
+            from: {
+                lat: +row.from_lat,
+                lng: +row.from_lng,
+                label: row.from_label,
+                country: row.from_country
+            },
+            to: {
+                lat: +row.to_lat,
+                lng: +row.to_lng,
+                label: row.to_label,
+                country: row.to_country
+            },
+            direction: row.direction
+        }));
+
+        initializeWorker(attacks);
+    });
 
 // Calculate the percentage of attacks from each country
 function updateTable(currentIndex, totalData) {
