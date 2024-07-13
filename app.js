@@ -49,29 +49,21 @@ function throttle(func, limit) {
     };
 }
 
-// Load data from CSV and update globe visualization
-d3.csv('attacks.csv').then(data => {
-    const attacks = data.map(row => ({
-        from: {
-            lat: +row.from_lat,
-            lng: +row.from_lng,
-            label: row.from_label,
-            country: row.from_country
-        },
-        to: {
-            lat: +row.to_lat,
-            lng: +row.to_lng,
-            label: row.to_label,
-            country: row.to_country
-        },
-        direction: row.direction
-    }));
+const CHUNK_SIZE = 500; // Number of rows to load at a time
+let currentIndex = 0;
+let totalData = [];
+let pointsSet = new Set();
+let arcsData = [];
+let labelsData = [];
 
-    const pointsSet = new Set();
-    const arcsData = [];
-    const labelsData = [];
+// Function to load the next chunk of data
+function loadNextChunk() {
+    if (currentIndex >= totalData.length) return;
 
-    attacks.forEach(attack => {
+    const chunk = totalData.slice(currentIndex, currentIndex + CHUNK_SIZE);
+    currentIndex += CHUNK_SIZE;
+
+    chunk.forEach(attack => {
         const fromKey = `${attack.from.lat},${attack.from.lng}`;
         const toKey = `${attack.to.lat},${attack.to.lng}`;
         if (!pointsSet.has(fromKey)) {
@@ -95,15 +87,39 @@ d3.csv('attacks.csv').then(data => {
         return { lat, lng };
     });
 
-    // Throttled data update for performance
-    const updateDataThrottled = throttle(() => {
-        myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
-    }, 1000);
+    myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
-    updateDataThrottled();
+    // Update the table with the new data
+    updateTable();
+}
 
-    // Calculate the percentage of attacks from each country
-    const incomingAttacks = attacks.filter(attack => attack.direction === 'incoming');
+// Load initial data from CSV
+d3.csv('attacks.csv').then(data => {
+    totalData = data.map(row => ({
+        from: {
+            lat: +row.from_lat,
+            lng: +row.from_lng,
+            label: row.from_label,
+            country: row.from_country
+        },
+        to: {
+            lat: +row.to_lat,
+            lng: +row.to_lng,
+            label: row.to_label,
+            country: row.to_country
+        },
+        direction: row.direction
+    }));
+
+    loadNextChunk();
+});
+
+// Load more data when the user interacts with the globe
+myGlobe.controls().addEventListener('change', throttle(loadNextChunk, 1000));
+
+// Calculate the percentage of attacks from each country
+function updateTable() {
+    const incomingAttacks = totalData.filter(attack => attack.direction === 'incoming' && currentIndex >= totalData.indexOf(attack));
     const countryCounts = new Map();
 
     incomingAttacks.forEach(attack => {
@@ -117,8 +133,8 @@ d3.csv('attacks.csv').then(data => {
         percentage: ((count / totalIncoming) * 100).toFixed(2) + '%'
     }));
 
-    // Update the table with the calculated percentages
     const tbody = document.getElementById('attackTable').querySelector('tbody');
+    tbody.innerHTML = ''; // Clear existing rows
     countryPercentages.forEach(({ country, percentage }) => {
         const row = document.createElement('tr');
         const flagCell = document.createElement('td');
@@ -139,9 +155,8 @@ d3.csv('attacks.csv').then(data => {
         tbody.appendChild(row);
     });
 
-    // Update the total number of attacks
-    document.getElementById('totalAttacks').textContent = `Total Attacks: ${attacks.length}`;
-});
+    document.getElementById('totalAttacks').textContent = `Total Attacks: ${totalData.length}`;
+}
 
 // Function to update the clock
 function updateClock() {
