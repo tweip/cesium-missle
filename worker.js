@@ -1,5 +1,3 @@
-// worker.js
-
 self.onmessage = function(event) {
     const data = event.data;
     const CHUNK_SIZE = 500;
@@ -31,7 +29,6 @@ self.onmessage = function(event) {
             });
         });
 
-        // Post a message back to the main thread with the processed data
         self.postMessage({
             pointsData: Array.from(pointsSet).map(key => {
                 const [lat, lng] = key.split(',').map(Number);

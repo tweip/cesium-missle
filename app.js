@@ -3,16 +3,16 @@ const SINGAPORE_COORDINATES = { lat: 1.3521, lng: 103.8198 };
 const myGlobe = Globe()
 (document.getElementById('globeViz'))
 .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-.pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: 103.8198, altitude: 2 }) // aim at Singapore
+.pointOfView({ lat: SINGAPORE_COORDINATES.lat, lng: 103.8198, altitude: 2 })
 .arcDashLength(0.25)
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(5000) // Slow down animation for performance
-.arcStroke(0.2) // Reduce stroke width for performance
+.arcDashAnimateTime(5000)
+.arcStroke(0.2)
 .arcsTransitionDuration(0)
 .arcColor(arc => {
     const isOutgoing = arc.startLat === SINGAPORE_COORDINATES.lat && arc.startLng === SINGAPORE_COORDINATES.lng;
-    return isOutgoing ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)'; // Adjust opacity for performance
+    return isOutgoing ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)';
 })
 .pointColor(() => 'orange')
 .pointAltitude(0)
@@ -24,12 +24,10 @@ const myGlobe = Globe()
 .labelSize(1.5)
 .labelDotRadius(0.2);
 
-// Enable auto-rotation
 const controls = myGlobe.controls();
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.3;
 
-// Debounce function to limit the frequency of updates
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -38,7 +36,6 @@ function debounce(func, wait) {
     };
 }
 
-// Function to initialize the worker
 function initializeWorker(data) {
     const worker = new Worker('worker.js');
     worker.postMessage(data);
@@ -48,17 +45,14 @@ function initializeWorker(data) {
 
         myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
-        // Update the table with the new data
         updateTable(currentIndex, data);
 
-        // If there are more chunks to process, continue
         if (currentIndex < data.length) {
             worker.postMessage(data.slice(currentIndex));
         }
     };
 }
 
-// Load initial data from gzipped JSON
 fetch('attacks.json.gz')
     .then(response => response.arrayBuffer())
     .then(buffer => {
@@ -84,7 +78,6 @@ fetch('attacks.json.gz')
         initializeWorker(attacks);
     });
 
-// Calculate the percentage of attacks from each country
 function updateTable(currentIndex, totalData) {
     const incomingAttacks = totalData.filter(attack => attack.direction === 'incoming' && currentIndex >= totalData.indexOf(attack));
     const countryCounts = new Map();
@@ -101,7 +94,7 @@ function updateTable(currentIndex, totalData) {
     }));
 
     const tbody = document.getElementById('attackTable').querySelector('tbody');
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = '';
     countryPercentages.forEach(({ country, percentage }) => {
         const row = document.createElement('tr');
         const flagCell = document.createElement('td');
@@ -113,7 +106,7 @@ function updateTable(currentIndex, totalData) {
         flagImg.classList.add('flag');
         flagCell.appendChild(flagImg);
         
-        countryCell.textContent = country; // Display country code in uppercase
+        countryCell.textContent = country;
         percentageCell.textContent = percentage;
         
         row.appendChild(flagCell);
@@ -125,19 +118,16 @@ function updateTable(currentIndex, totalData) {
     document.getElementById('totalAttacks').textContent = `Total Attacks: ${totalData.length}`;
 }
 
-// Function to update the clock
 function updateClock() {
     const now = new Date();
     const timeString = now.toLocaleTimeString();
     const dateString = now.toLocaleDateString();
-    document.getElementById('clock').innerHTML = `Local Time<br>${timeString}`;
+    document.getElementById('clock').innerHTML = `${dateString}<br>${timeString}`;
 }
 
-// Update the clock every second
 setInterval(updateClock, 1000);
-updateClock(); // Initial call to set the clock immediately
+updateClock();
 
-// Load more data when the user interacts with the globe (debounced)
 controls.addEventListener('change', debounce(() => {
     const worker = new Worker('worker.js');
     worker.postMessage(totalData);
@@ -145,7 +135,6 @@ controls.addEventListener('change', debounce(() => {
         const { pointsData, arcsData, labelsData, currentIndex } = event.data;
         myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
-        // If there are more chunks to process, continue
         if (currentIndex < totalData.length) {
             worker.postMessage(totalData.slice(currentIndex));
         }
