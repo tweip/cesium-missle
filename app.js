@@ -101,9 +101,6 @@ d3.csv('attacks.csv').then(data => {
 
     // Update the total number of attacks
     document.getElementById('totalAttacks').textContent = `Total Attacks: ${attacks.length}`;
-}).catch(error => {
-    console.error('Error loading or parsing CSV file:', error);
-    document.getElementById('totalAttacks').textContent = 'Failed to load attack data.';
 });
 
 // Function to update the clock
