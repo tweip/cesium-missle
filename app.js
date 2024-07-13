@@ -31,6 +31,8 @@ controls.autoRotateSpeed = 0.5;
 
 // Load data from CSV and update globe visualization
 d3.csv('attacks.csv').then(data => {
+    console.log('CSV data loaded:', data); // Debugging line to ensure data is loaded
+
     const attacks = data.map(row => ({
         from: {
             lat: +row.from_lat,
@@ -46,6 +48,8 @@ d3.csv('attacks.csv').then(data => {
         },
         direction: row.direction
     }));
+
+    console.log('Parsed attacks data:', attacks); // Debugging line to check parsed data
 
     const pointsData = attacks.flatMap(attack => [attack.from, attack.to]);
 
@@ -101,6 +105,8 @@ d3.csv('attacks.csv').then(data => {
 
     // Update the total number of attacks
     document.getElementById('totalAttacks').textContent = `Total Attacks: ${attacks.length}`;
+}).catch(error => {
+    console.error('Error loading CSV data:', error); // Error handling
 });
 
 // Function to update the clock
