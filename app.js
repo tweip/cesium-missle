@@ -24,28 +24,17 @@ const myGlobe = Globe()
 .labelSize(1.5)
 .labelDotRadius(0.2);
 
-// Enable auto-rotation with throttling
+// Enable auto-rotation
 const controls = myGlobe.controls();
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.3;
 
-// Throttle function to limit the frequency of updates
-function throttle(func, limit) {
-    let lastFunc;
-    let lastRan;
+// Debounce function to limit the frequency of updates
+function debounce(func, wait) {
+    let timeout;
     return function(...args) {
-        if (!lastRan) {
-            func.apply(this, args);
-            lastRan = Date.now();
-        } else {
-            clearTimeout(lastFunc);
-            lastFunc = setTimeout(function() {
-                if ((Date.now() - lastRan) >= limit) {
-                    func.apply(this, args);
-                    lastRan = Date.now();
-                }
-            }, limit - (Date.now() - lastRan));
-        }
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
 
@@ -142,3 +131,18 @@ function updateClock() {
 // Update the clock every second
 setInterval(updateClock, 1000);
 updateClock(); // Initial call to set the clock immediately
+
+// Load more data when the user interacts with the globe (debounced)
+controls.addEventListener('change', debounce(() => {
+    const worker = new Worker('worker.js');
+    worker.postMessage(totalData);
+    worker.onmessage = function(event) {
+        const { pointsData, arcsData, labelsData, currentIndex } = event.data;
+        myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
+
+        // If there are more chunks to process, continue
+        if (currentIndex < totalData.length) {
+            worker.postMessage(totalData.slice(currentIndex));
+        }
+    };
+}, 1000));

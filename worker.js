@@ -45,4 +45,3 @@ self.onmessage = function(event) {
 
     self.close();
 };
-
