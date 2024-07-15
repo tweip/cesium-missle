@@ -7,8 +7,8 @@ const myGlobe = Globe()
 .arcDashLength(0.25)
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(5000)
-.arcStroke(0.2)
+.arcDashAnimateTime(60000) // Slow down animation
+.arcStroke(0.5) // Increase stroke width for better visibility
 .arcsTransitionDuration(0)
 .arcColor(arc => {
     const isOutgoing = arc.startLat === SINGAPORE_COORDINATES.lat && arc.startLng === SINGAPORE_COORDINATES.lng;
@@ -38,7 +38,17 @@ function debounce(func, wait) {
 
 function initializeWorker(data) {
     const worker = new Worker('worker.js');
-    worker.postMessage(data);
+    let currentIndex = 0;
+
+    function loadNextChunk() {
+        const chunk = data.slice(currentIndex, currentIndex + 20); // Load smaller chunks to slow down the introduction of arcs
+        currentIndex += 20;
+        worker.postMessage(chunk);
+
+        if (currentIndex < data.length) {
+            setTimeout(loadNextChunk, 5000); // Delay between loading new chunks
+        }
+    }
 
     worker.onmessage = function(event) {
         const { pointsData, arcsData, labelsData, currentIndex } = event.data;
@@ -46,11 +56,9 @@ function initializeWorker(data) {
         myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
         updateTable(currentIndex, data);
-
-        if (currentIndex < data.length) {
-            worker.postMessage(data.slice(currentIndex));
-        }
     };
+
+    loadNextChunk();
 }
 
 fetch('attacks.json.gz')
@@ -122,7 +130,7 @@ function updateClock() {
     const now = new Date();
     const timeString = now.toLocaleTimeString();
     const dateString = now.toLocaleDateString();
-    document.getElementById('clock').innerHTML = `Local Time<br>${timeString}`;
+    document.getElementById('clock').innerHTML = `${dateString}<br>${timeString}`;
 }
 
 setInterval(updateClock, 1000);
