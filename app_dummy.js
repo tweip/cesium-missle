@@ -7,7 +7,7 @@ const myGlobe = Globe()
 .arcDashLength(0.25)
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(30000) // Slow down animation
+.arcDashAnimateTime(60000) // Slow down animation
 .arcStroke(0.5) // Increase stroke width for better visibility
 .arcsTransitionDuration(0)
 .arcColor(arc => {
@@ -41,12 +41,12 @@ function initializeWorker(data) {
     let currentIndex = 0;
 
     function loadNextChunk() {
-        const chunk = data.slice(currentIndex, currentIndex + 100); // Increase chunk size to 100
-        currentIndex += 100;
+        const chunk = data.slice(currentIndex, currentIndex + 20); // Load smaller chunks to slow down the introduction of arcs
+        currentIndex += 20;
         worker.postMessage(chunk);
 
         if (currentIndex < data.length) {
-            setTimeout(loadNextChunk, 2000); // Decrease delay to 2000 ms
+            setTimeout(loadNextChunk, 5000); // Delay between loading new chunks
         }
     }
 
@@ -56,16 +56,12 @@ function initializeWorker(data) {
         myGlobe.pointsData(pointsData).arcsData(arcsData).labelsData(labelsData);
 
         updateTable(currentIndex, data);
-        updateThreatTypes(data);
-
-        console.log(`Processed chunk up to index: ${currentIndex}`);
-        console.log(`Arcs Data: `, arcsData);
     };
 
     loadNextChunk();
 }
 
-fetch('EmailData.json.gz')
+fetch('attacks.json.gz')
     .then(response => response.arrayBuffer())
     .then(buffer => {
         const decompressed = pako.inflate(buffer, { to: 'string' });
@@ -84,16 +80,14 @@ fetch('EmailData.json.gz')
                 label: row.to_label,
                 country: row.to_country
             },
-            direction: row.direction,
-            threatType: row.ThreatTypes // Add threat type
+            direction: row.direction
         }));
 
-        console.log(`Loaded ${attacks.length} attacks from JSON.`);
         initializeWorker(attacks);
     });
 
 function updateTable(currentIndex, totalData) {
-    const incomingAttacks = totalData.filter(attack => attack.direction === 'Inbound' && currentIndex >= totalData.indexOf(attack));
+    const incomingAttacks = totalData.filter(attack => attack.direction === 'incoming' && currentIndex >= totalData.indexOf(attack));
     const countryCounts = new Map();
 
     incomingAttacks.forEach(attack => {
@@ -129,37 +123,7 @@ function updateTable(currentIndex, totalData) {
         tbody.appendChild(row);
     });
 
-//    document.getElementById('totalAttacks').textContent = `Total Attacks: ${totalData.length}`;
-}
-
-function updateThreatTypes(totalData) {
-    const threatCounts = new Map();
-
-    totalData.forEach(attack => {
-        const type = attack.threatType;
-        threatCounts.set(type, (threatCounts.get(type) || 0) + 1);
-    });
-
-    const totalThreats = totalData.length;
-    const threatPercentages = Array.from(threatCounts.entries()).map(([type, count]) => ({
-        type,
-        percentage: ((count / totalThreats) * 100).toFixed(2) + '%'
-    }));
-
-    const tbody = document.getElementById('threatTable').querySelector('tbody');
-    tbody.innerHTML = '';
-    threatPercentages.forEach(({ type, percentage }) => {
-        const row = document.createElement('tr');
-        const typeCell = document.createElement('td');
-        const percentageCell = document.createElement('td');
-        
-        typeCell.textContent = type;
-        percentageCell.textContent = percentage;
-        
-        row.appendChild(typeCell);
-        row.appendChild(percentageCell);
-        tbody.appendChild(row);
-    });
+    document.getElementById('totalAttacks').textContent = `Total Attacks: ${totalData.length}`;
 }
 
 function updateClock() {

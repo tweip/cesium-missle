@@ -33,7 +33,7 @@ body {
     text-align: center;
     font-size: 3em;
     color: #fff;
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #fff, 0 0 25px #fff, 0 0 30px #fff, 0 0 35px #fff;
+/*    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #fff, 0 0 25px #fff, 0 0 30px #fff, 0 0 35px #fff;*/
     z-index: 2;
     pointer-events: none;
 }
@@ -49,33 +49,6 @@ body {
     z-index: 2;
     pointer-events: all;
     font-size: 1.5em;
-}
-
-#topLeft {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 2;
-    pointer-events: all;
-    font-size: 1em;
-    color: white;
-}
-
-#threatTable {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: transparent;
-}
-
-#threatTable th, #threatTable td {
-    padding: 8px;
-    text-align: left;
-    background-color: transparent;
-    border: none;
-    color: white;
 }
 
 #clock, #totalAttacks {
