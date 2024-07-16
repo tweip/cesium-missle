@@ -26,7 +26,7 @@ const myGlobe = Globe()
 
 const controls = myGlobe.controls();
 controls.autoRotate = true;
-controls.autoRotateSpeed = 1;
+controls.autoRotateSpeed = 10;
 
 function debounce(func, wait) {
     let timeout;
