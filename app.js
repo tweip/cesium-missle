@@ -7,7 +7,7 @@ const myGlobe = Globe()
 .arcDashLength(0.25)
 .arcDashGap(1)
 .arcDashInitialGap(() => Math.random())
-.arcDashAnimateTime(30000) // Slow down animation
+.arcDashAnimateTime(10000) // Slow down animation
 .arcStroke(0.5) // Increase stroke width for better visibility
 .arcsTransitionDuration(0)
 .arcColor(arc => {
@@ -26,7 +26,7 @@ const myGlobe = Globe()
 
 const controls = myGlobe.controls();
 controls.autoRotate = true;
-controls.autoRotateSpeed = 5;
+controls.autoRotateSpeed = 3;
 
 function debounce(func, wait) {
     let timeout;
